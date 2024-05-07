@@ -17,9 +17,9 @@ This application is designed to monitor internet speed using the speedtest-cli t
 1. Clone the repository. 
 2. Build and run the docker container. 
 ```bash
-cd speedtest-monitor
-docker build -t speedtest-monitor .
-docker run -d -p 8080:8080 speedtest-monitor
+cd speedtesting
+docker build -t speedtesting .
+docker run -d -p 8080:8080 speedtesting
 ```
 3. Open your browser and navigate to `http://localhost:8080` to access the web frontend.
 
