@@ -1,0 +1,9 @@
+# OSX
+.DS_Store
+
+# Python
+.venv/
+__pycache__/
+
+# App
+speedtest_results.db

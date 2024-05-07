@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;900&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{{ url_for('static',filename='styles/styles.css') }}"
+    />
+    <style></style>
+    <title>Speedtest Dashboard</title>
+    <script>
+      window.onload = function () {
+        let jsonData = JSON.parse({{ dataString | tojson }});
+        console.log(jsonData)
+      let downloadData = jsonData.data.map(x => {
+        return {
+          x: new Date(x.Timestamp),
+          y: x.Download
+        }
+      });
+
+      let uploadData = jsonData.data.map(x => {
+        return {
+          x: new Date(x.Timestamp),
+          y: x.Upload
+        }
+      });
+
+      var chart = new CanvasJS.Chart("chartContainer", {
+        animationEnabled: true,
+        theme: "light2",
+        backgroundColor: "#fdf5e6",
+        legend: {
+          fontFamily: "'Roboto', sans-serif",
+        },
+        title: {
+          text: "Speedtest Results",
+          fontFamily: "'Roboto', sans-serif",
+        },
+        axisY: {
+          title: "Mbps",
+          includeZero: false,
+          fontFamily: "'Roboto', sans-serif",
+        },
+        data: [{
+          type: "line",
+          showInLegend: true,
+          legendText: "Download",
+          indexLabelFontSize: 16,
+          dataPoints: downloadData,
+        },
+        {
+          type: "line",
+          showInLegend: true,
+          legendText: "Upload",
+          indexLabelFontSize: 16,
+          dataPoints: uploadData,
+        }]
+      });
+      chart.render();
+
+        }
+    </script>
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="chartContainer" id="chartContainer"></div>
+      <div class="time-selector">
+        <div class="time-content">
+          <p>Relative Time Filters</p>
+          <div class="time-row">
+            <span>Hours:</span>
+            <div class="buttons">
+              <button class="time-button" data-number="1" data-unit="hour">
+                1
+              </button>
+              <button class="time-button" data-number="2" data-unit="hour">
+                2
+              </button>
+              <button class="time-button" data-number="3" data-unit="hour">
+                3
+              </button>
+              <button class="time-button" data-number="4" data-unit="hour">
+                4
+              </button>
+              <button class="time-button" data-number="6" data-unit="hour">
+                6
+              </button>
+              <button class="time-button" data-number="12" data-unit="hour">
+                12
+              </button>
+            </div>
+          </div>
+          <div class="time-row">
+            <span>Days:</span>
+            <div class="buttons">
+              <button class="time-button" data-number="1" data-unit="day">
+                1
+              </button>
+              <button class="time-button" data-number="2" data-unit="day">
+                2
+              </button>
+              <button class="time-button" data-number="3" data-unit="day">
+                3
+              </button>
+              <button class="time-button" data-number="4" data-unit="day">
+                4
+              </button>
+              <button class="time-button" data-number="5" data-unit="day">
+                5
+              </button>
+              <button class="time-button" data-number="6" data-unit="day">
+                6
+              </button>
+            </div>
+          </div>
+          <div class="time-row">
+            <span>Weeks:</span>
+            <div class="buttons">
+              <button class="time-button" data-number="1" data-unit="week">
+                1
+              </button>
+              <button class="time-button" data-number="2" data-unit="week">
+                2
+              </button>
+              <button class="time-button" data-number="3" data-unit="week">
+                3
+              </button>
+              <button class="time-button" data-number="4" data-unit="week">
+                4
+              </button>
+              <button class="time-button" data-number="8" data-unit="week">
+                8
+              </button>
+              <button class="time-button" data-number="16" data-unit="week">
+                16
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card fade-in-pop-up">
+        <div class="cardTitle">Average Download</div>
+        <div class="cardNumber">
+          {{ data['average']['Download'] }}<span class="cardUnit">Mbps</span>
+        </div>
+      </div>
+      <div class="card fade-in-pop-up">
+        <div class="cardTitle">Average Upload</div>
+        <div class="cardNumber">
+          {{ data['average']['Upload'] }}<span class="cardUnit">Mbps</span>
+        </div>
+      </div>
+    </div>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/canvasjs/1.7.0/canvasjs.min.js"
+      integrity="sha512-FJ2OYvUIXUqCcPf1stu+oTBlhn54W0UisZB/TNrZaVMHHhYvLBV9jMbvJYtvDe5x/WVaoXZ6KB+Uqe5hT2vlyA=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+    <script src="{{ url_for('static',filename='scripts/script.js') }}"></script>
+  </body>
+</html>
