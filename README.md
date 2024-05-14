@@ -33,7 +33,7 @@ The Docker image mounts a volume to `/app/db`, where the SQLite database is stor
 
 - [speedtest-cli]( https://github.com/sivel/speedtest-cli): A command-line interface for testing internet bandwidth using speedtest.net.
 - [SQLite](https://www.sqlite.org/index.html): A lightweight, serverless database engine that stores data in a single file.
-- [Flask](https://flask.palletsprojects.com/)
+- [Flask](https://flask.palletsprojects.com/): A web application framework for Python.
 - [Chart.js](https://www.chartjs.org/): A JavaScript library for creating interactive charts and graphs.
 - [Docker](https://www.docker.com/): A platform for developing, shipping, and running applications in containers.
 - [Cron](https://en.wikipedia.org/wiki/Cron): A time-based job scheduler in Unix-like operating systems.
