@@ -3,18 +3,11 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;900&display=swap"
-      rel="stylesheet"
-    />
     <link
       rel="stylesheet"
       type="text/css"
       href="{{ url_for('static',filename='styles/styles.css') }}"
     />
-    <style></style>
     <title>Speedtest Dashboard</title>
     <script>
       window.onload = function () {
@@ -35,33 +28,52 @@
       });
 
       var chart = new CanvasJS.Chart("chartContainer", {
-        animationEnabled: true,
-        theme: "light2",
-        backgroundColor: "#fdf5e6",
+        animationEnabled: false,
+        backgroundColor: "transparent",
         legend: {
-          fontFamily: "'Roboto', sans-serif",
+          fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+          fontSize: 14,
         },
         title: {
-          text: "Speedtest Results",
-          fontFamily: "'Roboto', sans-serif",
+          text: "Network Speed",
+          fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+          fontSize: 20,
+          fontWeight: 600,
+          fontColor: "#1f2937",
+          horizontalAlign: "left",
+          padding: 0,
         },
         axisY: {
           title: "Mbps",
           includeZero: false,
-          fontFamily: "'Roboto', sans-serif",
+          fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+          gridColor: "#f3f4f6",
+          lineColor: "#e5e7eb",
+          titleFontSize: 12,
+          labelFontSize: 12,
+        },
+        axisX: {
+          fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+          gridColor: "#f3f4f6",
+          lineColor: "#e5e7eb",
+          labelFontSize: 12,
         },
         data: [{
           type: "line",
           showInLegend: true,
           legendText: "Download",
-          indexLabelFontSize: 16,
+          color: "#6366f1",
+          lineThickness: 2,
+          markerSize: 4,
           dataPoints: downloadData,
         },
         {
           type: "line",
           showInLegend: true,
           legendText: "Upload",
-          indexLabelFontSize: 16,
+          color: "#818cf8",
+          lineThickness: 2,
+          markerSize: 4,
           dataPoints: uploadData,
         }]
       });
@@ -74,90 +86,58 @@
   <body>
     <div class="container">
       <div class="chartContainer" id="chartContainer"></div>
+
       <div class="time-selector">
         <div class="time-content">
-          <p>Relative Time Filters</p>
+          <p>Time Range</p>
           <div class="time-row">
-            <span>Hours:</span>
+            <span>Hours</span>
             <div class="buttons">
-              <button class="time-button" data-number="1" data-unit="hour">
-                1
-              </button>
-              <button class="time-button" data-number="2" data-unit="hour">
-                2
-              </button>
-              <button class="time-button" data-number="3" data-unit="hour">
-                3
-              </button>
-              <button class="time-button" data-number="4" data-unit="hour">
-                4
-              </button>
-              <button class="time-button" data-number="6" data-unit="hour">
-                6
-              </button>
-              <button class="time-button" data-number="12" data-unit="hour">
-                12
-              </button>
+              <button class="time-button" data-number="1" data-unit="hour">1</button>
+              <button class="time-button" data-number="2" data-unit="hour">2</button>
+              <button class="time-button" data-number="3" data-unit="hour">3</button>
+              <button class="time-button" data-number="4" data-unit="hour">4</button>
+              <button class="time-button" data-number="6" data-unit="hour">6</button>
+              <button class="time-button" data-number="12" data-unit="hour">12</button>
             </div>
           </div>
           <div class="time-row">
-            <span>Days:</span>
+            <span>Days</span>
             <div class="buttons">
-              <button class="time-button" data-number="1" data-unit="day">
-                1
-              </button>
-              <button class="time-button" data-number="2" data-unit="day">
-                2
-              </button>
-              <button class="time-button" data-number="3" data-unit="day">
-                3
-              </button>
-              <button class="time-button" data-number="4" data-unit="day">
-                4
-              </button>
-              <button class="time-button" data-number="5" data-unit="day">
-                5
-              </button>
-              <button class="time-button" data-number="6" data-unit="day">
-                6
-              </button>
+              <button class="time-button" data-number="1" data-unit="day">1</button>
+              <button class="time-button" data-number="2" data-unit="day">2</button>
+              <button class="time-button" data-number="3" data-unit="day">3</button>
+              <button class="time-button" data-number="4" data-unit="day">4</button>
+              <button class="time-button" data-number="5" data-unit="day">5</button>
+              <button class="time-button" data-number="6" data-unit="day">6</button>
             </div>
           </div>
           <div class="time-row">
-            <span>Weeks:</span>
+            <span>Weeks</span>
             <div class="buttons">
-              <button class="time-button" data-number="1" data-unit="week">
-                1
-              </button>
-              <button class="time-button" data-number="2" data-unit="week">
-                2
-              </button>
-              <button class="time-button" data-number="3" data-unit="week">
-                3
-              </button>
-              <button class="time-button" data-number="4" data-unit="week">
-                4
-              </button>
-              <button class="time-button" data-number="8" data-unit="week">
-                8
-              </button>
-              <button class="time-button" data-number="16" data-unit="week">
-                16
-              </button>
+              <button class="time-button" data-number="1" data-unit="week">1</button>
+              <button class="time-button" data-number="2" data-unit="week">2</button>
+              <button class="time-button" data-number="3" data-unit="week">3</button>
+              <button class="time-button" data-number="4" data-unit="week">4</button>
+              <button class="time-button" data-number="8" data-unit="week">8</button>
+              <button class="time-button" data-number="16" data-unit="week">16</button>
             </div>
           </div>
         </div>
       </div>
-      <div class="card fade-in-pop-up">
-        <div class="cardTitle">Average Download</div>
-        <div class="cardNumber">
-          {{ data['average']['Download'] }}<span class="cardUnit">Mbps</span>
+
+      <div class="stats-grid">
+        <div class="card">
+          <div class="cardTitle">Average Download</div>
+          <div class="cardNumber">
+            {{ data['average']['Download'] }}<span class="cardUnit">Mbps</span>
+          </div>
         </div>
-      </div>
-      <div class="card fade-in-pop-up">
-        <div class="cardTitle">Average Upload</div>
-        <div class="cardNumber">
-          {{ data['average']['Upload'] }}<span class="cardUnit">Mbps</span>
+        <div class="card">
+          <div class="cardTitle">Average Upload</div>
+          <div class="cardNumber">
+            {{ data['average']['Upload'] }}<span class="cardUnit">Mbps</span>
+          </div>
         </div>
       </div>
     </div>
