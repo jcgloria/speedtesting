@@ -9,17 +9,16 @@ This application is designed to monitor internet speed using the speedtest-cli t
 - **Internet Speed Monitoring**: The application runs a cron job every 30 minutes to perform an internet speed test using the speedtest-cli tool.
 - **Data Storage**: The results of the speed tests are stored in a SQLite database for historical analysis.
 - **Web Frontend**: Provides a user-friendly web interface for visualizing internet speed data over time.
-- **Graph Visualization**: The web frontend includes a graph that displays download and upload speeds over time.
+- **Graph Visualization**: The web frontend includes a graph that displays download speeds, upload speeds, and ping latency over time.
 - **Time Filtering**: Users can filter the data by time to view internet speed trends for specific relative periods.
 
 ## How to run
 
-1. Clone the repository. 
-2. Build and run the docker container. 
+1. Clone the repository.
+2. Build and run with Docker Compose.
 ```bash
 cd speedtesting
-docker build -t speedtesting .
-docker run -d -p 8080:8080 speedtesting
+docker compose up --build -d
 ```
 3. Open your browser and navigate to `http://localhost:8080` to access the web frontend.
 
@@ -41,5 +40,4 @@ The Docker image mounts a volume to `/app/db`, where the SQLite database is stor
 
 ### Roadmap
 
-- Add Ping Latency Monitoring: Include ping latency data in the speed test results and display it in the web frontend.
 - Add table showing which servers are being used for the speed tests.
