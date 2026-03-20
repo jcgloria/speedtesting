@@ -1,33 +1,28 @@
-# Use a Python base image
-FROM python:latest
+FROM python:3.12-slim
 
 WORKDIR /app
 
-# Install sqlite3, cron, and speedtest-cli
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     sqlite3 \
     cron \
     speedtest-cli \
     && rm -rf /var/lib/apt/lists/*
 
-# Install the Python packages
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Prepare the speedtest script and the cronjob
-COPY spdtest.sh .
-RUN chmod +x spdtest.sh
-RUN echo "*/30 * * * * /app/spdtest.sh >> /tmp/spdtest.log 2>&1" | crontab -
-
-# Prepare the web app
-COPY app.py .
+COPY db.py speedtest_runner.py app.py ./
 COPY templates templates
 COPY static static
 
-# Run with waitress (default port is 8080)
+# Cron job: run speed test every 30 minutes
+RUN echo "*/30 * * * * cd /app && /usr/local/bin/python speedtest_runner.py >> /var/log/speedtest.log 2>&1" | crontab -
+
 EXPOSE 8080
 
 VOLUME /app/db
 
-CMD ["sh", "-c", "service cron start && waitress-serve app:app"]
+HEALTHCHECK --interval=60s --timeout=5s --retries=3 \
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8080/health')" || exit 1
 
+CMD ["sh", "-c", "service cron start && waitress-serve --host=0.0.0.0 --port=8080 app:app"]

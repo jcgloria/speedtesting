@@ -1,85 +1,114 @@
-from flask import Flask, render_template, request, redirect, url_for
 import json
-import sqlite3
-import pandas as pd
 from datetime import datetime, timedelta, timezone
+
+from flask import Flask, render_template, request, redirect, url_for
+
+from db import get_connection, init_db
 
 app = Flask(__name__)
 
-DATABASE_FILE = '/app/db/speedtest_results.db'
+VALID_UNITS = {
+    "hour": lambda n: timedelta(hours=n),
+    "day": lambda n: timedelta(days=n),
+    "week": lambda n: timedelta(weeks=n),
+}
 
-conn = sqlite3.connect(DATABASE_FILE, check_same_thread=False)
+MAX_PERIOD_DAYS = 365
 
-# Create table if it doesn't exist
-createStatement = """
-CREATE TABLE IF NOT EXISTS speedtest (
-    Timestamp TEXT,
-    Server_ID INTEGER,
-    Sponsor TEXT,
-    Server_Name TEXT,
-    Distance REAL,
-    Ping REAL,
-    Download REAL,
-    Upload REAL,
-    Share TEXT,
-    IP_Address TEXT
-);
-"""
 
-conn.execute(createStatement)
-conn.commit()
-
-query = """
-SELECT * 
-FROM speedtest 
-WHERE strftime('%s', Timestamp) > strftime('%s', '{}');
-"""
-
-def getQuery(number, unit):
+def query_speedtest_data(number, unit):
+    """Query speed test results for the given time window. Returns dict."""
     try:
         number = int(number)
-    except:
+    except (TypeError, ValueError):
         return None
-    if unit == 'hour':
-        timeDeltaObject = timedelta(hours=int(number))
-    elif unit == 'day':
-        timeDeltaObject = timedelta(days=int(number))
-    elif unit == 'week':
-        timeDeltaObject = timedelta(weeks=int(number))
-    else:
+    if number < 1 or unit not in VALID_UNITS:
         return None
-    timeQuery = datetime.now(timezone.utc) - timeDeltaObject
-    timeQueryStr = timeQuery.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
-    return query.format(timeQueryStr)
+
+    delta = VALID_UNITS[unit](number)
+    if delta.days > MAX_PERIOD_DAYS:
+        return None
+
+    cutoff = (datetime.now(timezone.utc) - delta).strftime("%Y-%m-%dT%H:%M:%S")
+
+    conn = get_connection()
+    try:
+        rows = conn.execute(
+            "SELECT timestamp, download, upload, ping FROM speedtest "
+            "WHERE strftime('%s', timestamp) > strftime('%s', ?) "
+            "ORDER BY timestamp",
+            (cutoff,),
+        ).fetchall()
+    finally:
+        conn.close()
+
+    if not rows:
+        return {
+            "data": [],
+            "average": {"download": 0, "upload": 0, "ping": 0},
+        }
+
+    data = []
+    total_dl = total_ul = total_ping = 0
+    for row in rows:
+        dl = round(row["download"] / 1_000_000, 2)
+        ul = round(row["upload"] / 1_000_000, 2)
+        p = round(row["ping"], 1)
+        data.append({
+            "timestamp": row["timestamp"],
+            "download": dl,
+            "upload": ul,
+            "ping": p,
+        })
+        total_dl += dl
+        total_ul += ul
+        total_ping += p
+
+    n = len(data)
+    return {
+        "data": data,
+        "average": {
+            "download": round(total_dl / n, 2),
+            "upload": round(total_ul / n, 2),
+            "ping": round(total_ping / n, 1),
+        },
+    }
+
 
 @app.route("/")
 def main():
-    if 'number' not in request.args or 'unit' not in request.args:
-        return redirect(url_for('main', number=1, unit='week'))
-    requestQuery = getQuery(request.args.get(
-        'number'), request.args.get('unit'))
-    if requestQuery is None:
-        return redirect(url_for('main', number=1, unit='week'))
-    try:
-        df = pd.read_sql_query(requestQuery, conn)
-        data = process_df(df)
-        dataString = json.dumps(data)
-    except Exception as e:
-        print(e)
-        data = {}
-    dataString = json.dumps(data)
-    return render_template('index.html', dataString=dataString, data=data, number=request.args.get('number'), unit=request.args.get('unit'))
+    number = request.args.get("number")
+    unit = request.args.get("unit")
 
-def process_df(df):
-    if df.empty:
-        return {"data": [], "average": {"Download": 0, "Upload": 0}}
-    result_dict = {}
-    df['Download'] = df['Download'] / 1000000
-    df['Download'] = df['Download'].round(2)
-    df['Upload'] = df['Upload'] / 1000000
-    df['Upload'] = df['Upload'].round(2)
-    result_dict['data'] = df[['Timestamp', 'Download', 'Upload']
-                             ].to_dict(orient='records')
-    result_dict['average'] = {"Download": df['Download'].mean().round(
-        2), "Upload": df['Upload'].mean().round(2)}
-    return result_dict
+    if number is None or unit is None:
+        return redirect(url_for("main", number=1, unit="week"))
+
+    result = query_speedtest_data(number, unit)
+    if result is None:
+        return redirect(url_for("main", number=1, unit="week"))
+
+    return render_template(
+        "index.html",
+        data_json=json.dumps(result),
+        data=result,
+        number=number,
+        unit=unit,
+    )
+
+
+@app.route("/health")
+def health():
+    """Health check — confirms DB is reachable and returns last test time."""
+    conn = get_connection()
+    try:
+        row = conn.execute(
+            "SELECT timestamp FROM speedtest ORDER BY timestamp DESC LIMIT 1"
+        ).fetchone()
+    finally:
+        conn.close()
+
+    last_test = row["timestamp"] if row else None
+    return {"status": "ok", "last_test": last_test}
+
+
+init_db()

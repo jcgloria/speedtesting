@@ -1,0 +1,14 @@
+services:
+  speedtest:
+    build: .
+    container_name: speedtest-monitor
+    ports:
+      - "8080:8080"
+    volumes:
+      - speedtest-data:/app/db
+    restart: unless-stopped
+    environment:
+      - DB_PATH=/app/db/speedtest_results.db
+
+volumes:
+  speedtest-data:
