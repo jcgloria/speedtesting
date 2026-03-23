@@ -44,9 +44,9 @@ document.addEventListener('DOMContentLoaded', function () {
           data: downloads,
           borderColor: accent,
           backgroundColor: accent + '1a',
-          borderWidth: 2,
-          pointRadius: 2,
-          pointHoverRadius: 4,
+          borderWidth: 2.5,
+          pointRadius: 0,
+          pointHoverRadius: 5,
           tension: 0.3,
           fill: false,
           yAxisID: 'y',
@@ -56,9 +56,9 @@ document.addEventListener('DOMContentLoaded', function () {
           data: uploads,
           borderColor: uploadColor,
           backgroundColor: uploadColor + '1a',
-          borderWidth: 2,
-          pointRadius: 2,
-          pointHoverRadius: 4,
+          borderWidth: 2.5,
+          pointRadius: 0,
+          pointHoverRadius: 5,
           tension: 0.3,
           fill: false,
           yAxisID: 'y',
@@ -69,7 +69,6 @@ document.addEventListener('DOMContentLoaded', function () {
           borderColor: pingColor,
           backgroundColor: pingColor + '1a',
           borderWidth: 2,
-          borderDash: [5, 3],
           pointRadius: 2,
           pointHoverRadius: 4,
           tension: 0.3,
@@ -107,8 +106,17 @@ document.addEventListener('DOMContentLoaded', function () {
           type: 'time',
           time: {
             tooltipFormat: 'MMM d, yyyy  HH:mm',
+            unit: (function () {
+              var f = window.activeFilter || {};
+              var n = parseInt(f.number) || 1;
+              var u = f.unit || 'week';
+              // Convert to total hours
+              var hours = u === 'hour' ? n : u === 'day' ? n * 24 : n * 168;
+              if (hours <= 24) return 'hour';
+              if (hours <= 24 * 14) return 'day';
+              return 'week';
+            })(),
             displayFormats: {
-              minute: 'HH:mm',
               hour: 'ha',
               day: 'MMM d',
               week: 'MMM d',
