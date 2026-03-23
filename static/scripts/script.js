@@ -21,9 +21,14 @@ document.addEventListener('DOMContentLoaded', function () {
   if (!canvas || !window.speedtestData || !window.speedtestData.data.length) return;
 
   var raw = window.speedtestData.data;
-  var downloads = raw.map(function (d) { return { x: new Date(d.timestamp), y: d.download }; });
-  var uploads = raw.map(function (d) { return { x: new Date(d.timestamp), y: d.upload }; });
-  var pings = raw.map(function (d) { return { x: new Date(d.timestamp), y: d.ping }; });
+  function parseTS(ts) {
+    // Ensure UTC if no timezone info present
+    if (!ts.endsWith('Z') && !ts.includes('+')) ts += 'Z';
+    return new Date(ts);
+  }
+  var downloads = raw.map(function (d) { return { x: parseTS(d.timestamp), y: d.download }; });
+  var uploads = raw.map(function (d) { return { x: parseTS(d.timestamp), y: d.upload }; });
+  var pings = raw.map(function (d) { return { x: parseTS(d.timestamp), y: d.ping }; });
 
   var style = getComputedStyle(document.documentElement);
   var accent = style.getPropertyValue('--accent').trim();
